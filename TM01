@@ -1,0 +1,100 @@
+package GUI;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import Model.ResponseModel;
+import Network.ConnectURI;
+import org.json.JSONArray;
+import org.json.JSONObject;
+public class TM01 extends JFrame {
+    // kode akan ditambahkan di sini
+
+    private JLabel label1;
+    private JLabel label2;
+    private JLabel label3;
+    private JTextField textField1;
+    private JTextField textField2;
+    private JTextField textField3;
+    private JButton button1;
+    private JButton button2;
+    private JButton button3;
+
+    public TM01() {
+
+        setTitle("Koneksi ke Server");
+
+
+        setLayout(new GridLayout(4, 2));
+
+
+        label1 = new JLabel("Response 1:");
+        label2 = new JLabel("Response 2:");
+        label3 = new JLabel("Response 3:");
+        textField1 = new JTextField();
+        textField2 = new JTextField();
+        textField3 = new JTextField();
+        button1 = new JButton("Response 1");
+        button2 = new JButton("Response 2");
+        button3 = new JButton("Response 3");
+
+
+        add(label1);
+        add(textField1);
+        add(button1);
+        add(label2);
+        add(textField2);
+        add(button2);
+        add(label3);
+        add(textField3);
+        add(button3);
+
+
+        setSize(400, 200);
+
+
+        setLocationRelativeTo(null);
+
+
+        button1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ConnectURI koneksiku = new ConnectURI();
+                URL myAddres = koneksiku.buildURL("https://harber.mimoapps.xyz/api/getresponse1.php");
+                try {
+                    String response = koneksiku.getResponseFromHttpUrl(myAddres);
+                    JSONArray responseJSON = new JSONArray(response);
+                    ArrayList<ResponseModel> responseModel = new ArrayList<>();
+                    for (int i = 0; i < responseJSON.length(); i++) {
+                        ResponseModel resModel = new ResponseModel();
+                        JSONObject myJSONObject = responseJSON.getJSONObject(i);
+                        resModel.setMessage(myJSONObject.getString("message"));
+                        resModel.setStatus(myJSONObject.getString("status"));
+                        resModel.setComments(myJSONObject.getString("comment"));
+                        responseModel.add(resModel);
+                    }
+                    textField1.setText("Message: " + responseModel.get(0).getMessage() + ", Status: " + responseModel.get(0).getStatus() + ", Comments: " + responseModel.get(0).getComments());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+
+    }
+
+    public static void main(String[] args) {
+
+        TM01 tm01 = new TM01();
+
+
+        tm01.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        tm01.setVisible(true);
+    }
+}
